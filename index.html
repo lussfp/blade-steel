@@ -619,10 +619,14 @@ async function iniciarPagamento() {
     // QR Code
     document.getElementById('pix-qr-code').textContent = j2.qr_payload;
     document.getElementById('qr-container').innerHTML = '';
-    new QRCode(document.getElementById('qr-container'), {
-      text: j2.qr_payload, width: 180, height: 180,
-      colorDark: '#000000', colorLight: '#ffffff',
-    });
+    const canvas = document.createElement('canvas');
+document.getElementById('qr-container').innerHTML = '';
+document.getElementById('qr-container').appendChild(canvas);
+
+QRCode.toCanvas(canvas, j2.qr_payload, {
+  width: 180,
+  margin: 1
+});
 
     // Chave aleatória
     document.getElementById('pix-chave-aleatoria').textContent = j2.chave_aleatoria;
