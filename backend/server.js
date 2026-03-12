@@ -1,248 +1,182 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const crypto  = require('crypto');
-const path    = require('path');
-const db      = require('./db');
-const mp      = require('./mercadopago');
+/**
+ * email.js — Envio de e-mails via Gmail (Nodemailer)
+ * Dispara: confirmação para o cliente + notificação para o barbeiro
+ */
 
-const app  = express();
-const PORT = process.env.PORT || 3001;
+const nodemailer = require('nodemailer');
 
-app.use(cors({
-  origin: ['https://lussfp.github.io', 'http://localhost:3001'],
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
-}));
-app.use('/api/webhooks', express.raw({ type: 'application/json' }));
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../frontend')));
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
-function gerarCodigo() {
-  return 'BS-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-}
-function gerarSlots(cfg) {
-  const slots = [];
-  const [hI, mI] = cfg.horario_inicio.split(':').map(Number);
-  const [hF, mF] = cfg.horario_fim.split(':').map(Number);
-  const step = parseInt(cfg.intervalo_min);
-  let cur = hI * 60 + mI, fim = hF * 60 + mF;
-  while (cur + step <= fim) {
-    slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);
-    cur += step;
-  }
-  return slots;
+function formatarData(dataStr) {
+  const d = new Date(dataStr + 'T12:00:00');
+  return d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-// ─── SERVIÇOS ─────────────────────────────────────────────────────────────────
-app.get('/api/servicos', (req, res) => {
-  res.json({ success: true, data: db.getServicos() });
-});
+// ─── E-MAIL PARA O CLIENTE ───────────────────────────────────────────────────
+async function enviarConfirmacaoCliente(ag) {
+  if (!ag.cliente_email) return;
 
-// ─── DISPONIBILIDADE ──────────────────────────────────────────────────────────
-app.get('/api/disponibilidade/:data', (req, res) => {
-  const { data } = req.params;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(data))
-    return res.status(400).json({ success: false, erro: 'Use YYYY-MM-DD.' });
-  const cfg = db.getConfig();
-  const dia = new Date(data + 'T12:00:00').getDay();
-  if (!cfg.dias_funcionamento.split(',').map(Number).includes(dia))
-    return res.json({ success: true, data: { aberto: false, slots: [] } });
-  const bloqueados = new Set(db.getHorariosBloqueados(data));
-  const slots = gerarSlots(cfg).map(hora => ({
-    hora,
-    disponivel: !db.horarioOcupado(data, hora) && !bloqueados.has(hora),
-  }));
-  res.json({ success: true, data: { aberto: true, data, slots } });
-});
+  await transporter.sendMail({
+    from: `"Blade & Steel ✦" <${process.env.EMAIL_USER}>`,
+    to:   ag.cliente_email,
+    subject: `✅ Agendamento Confirmado — ${ag.codigo}`,
+    html: `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0a0804;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0804;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:#1a1510;border:1px solid #2e2618;max-width:560px;width:100%;">
+        
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#1a1510,#211c14);padding:40px;text-align:center;border-bottom:2px solid #c9a84c;">
+          <div style="font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#c9a84c;margin-bottom:12px;">Barbearia Premium</div>
+          <div style="font-size:32px;font-weight:900;color:#f0e6d0;letter-spacing:3px;text-transform:uppercase;">BLADE <span style="color:#c9a84c;font-style:italic">&amp;</span> STEEL</div>
+          <div style="width:60px;height:1px;background:#c9a84c;margin:16px auto 0;"></div>
+        </td></tr>
 
-app.get('/api/disponibilidade/:data/:hora/verificar', (req, res) => {
-  const { data, hora } = req.params;
-  const ocupado   = db.horarioOcupado(data, hora);
-  const bloqueado = db.getHorariosBloqueados(data).includes(hora);
-  if (ocupado || bloqueado) {
-    const cfg   = db.getConfig();
-    const todos = gerarSlots(cfg);
-    const bloqs = new Set(db.getHorariosBloqueados(data));
-    const idx   = todos.indexOf(hora);
-    let sugestao = null;
-    for (let i = idx + 1; i < todos.length; i++) {
-      if (!db.horarioOcupado(data, todos[i]) && !bloqs.has(todos[i])) { sugestao = todos[i]; break; }
-    }
-    if (!sugestao) for (let i = idx - 1; i >= 0; i--) {
-      if (!db.horarioOcupado(data, todos[i]) && !bloqs.has(todos[i])) { sugestao = todos[i]; break; }
-    }
-    return res.json({ success: true, disponivel: false, mensagem: `Horário ${hora} indisponível.`, sugestao });
-  }
-  res.json({ success: true, disponivel: true, hora });
-});
+        <!-- Status -->
+        <tr><td style="padding:32px 40px 16px;text-align:center;">
+          <div style="display:inline-block;background:rgba(30,92,58,.2);border:1px solid #1e5c3a;padding:12px 28px;border-radius:2px;">
+            <span style="color:#4ade80;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:700;">✓ Pagamento Confirmado</span>
+          </div>
+          <p style="color:#a8956e;font-size:14px;margin:16px 0 0;line-height:1.7;">Olá, <strong style="color:#f0e6d0;">${ag.cliente_nome}</strong>! Seu agendamento está confirmado.</p>
+        </td></tr>
 
-// ─── AGENDAMENTOS ─────────────────────────────────────────────────────────────
-app.post('/api/agendamentos', (req, res) => {
-  const { cliente_nome, cliente_email, cliente_tel, servico_id, data, hora, observacoes } = req.body;
-  if (!cliente_nome || !servico_id || !data || !hora)
-    return res.status(400).json({ success: false, erro: 'Campos obrigatórios: cliente_nome, servico_id, data, hora.' });
-  const srv = db.getServicos().find(s => s.id === Number(servico_id));
-  if (!srv) return res.status(404).json({ success: false, erro: 'Serviço não encontrado.' });
-  if (db.horarioOcupado(data, hora))
-    return res.status(409).json({ success: false, erro: 'Horário indisponível.', codigo: 'HORARIO_OCUPADO' });
-  let codigo = gerarCodigo();
-  while (db.getAgendamentoByCodigo(codigo)) codigo = gerarCodigo();
-  const ag = db.criarAgendamento({
-    codigo, cliente_nome: cliente_nome.trim(),
-    cliente_email: cliente_email || null, cliente_tel: cliente_tel || null,
-    servico_id: Number(servico_id), data, hora,
-    duracao: srv.duracao, preco: srv.preco,
-    status: 'aguardando_pagamento',
-    pagamento_tipo: 'checkout_pro', pagamento_status: 'pendente',
-    pagamento_mp_id: null, observacoes: observacoes || null,
+        <!-- Código -->
+        <tr><td style="padding:8px 40px 24px;text-align:center;">
+          <div style="border:1px solid #c9a84c;display:inline-block;padding:12px 32px;">
+            <div style="font-size:10px;letter-spacing:3px;color:#a8956e;text-transform:uppercase;margin-bottom:6px;">Código do Agendamento</div>
+            <div style="font-size:26px;color:#c9a84c;font-weight:700;letter-spacing:4px;">${ag.codigo}</div>
+          </div>
+        </td></tr>
+
+        <!-- Detalhes -->
+        <tr><td style="padding:0 40px 32px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #2e2618;">
+            <tr style="border-bottom:1px solid #2e2618;">
+              <td style="padding:14px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a8956e;width:40%;">Serviço</td>
+              <td style="padding:14px 20px;font-size:13px;color:#f0e6d0;font-weight:600;">${ag.icone || '✂'} ${ag.servico_nome}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;background:rgba(42,34,20,.4);">
+              <td style="padding:14px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a8956e;">Data</td>
+              <td style="padding:14px 20px;font-size:13px;color:#f0e6d0;font-weight:600;">📅 ${formatarData(ag.data)}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;">
+              <td style="padding:14px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a8956e;">Horário</td>
+              <td style="padding:14px 20px;font-size:13px;color:#f0e6d0;font-weight:600;">🕐 ${ag.hora}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;background:rgba(42,34,20,.4);">
+              <td style="padding:14px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a8956e;">Duração</td>
+              <td style="padding:14px 20px;font-size:13px;color:#f0e6d0;font-weight:600;">⏱ ${ag.duracao} minutos</td>
+            </tr>
+            <tr>
+              <td style="padding:14px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a8956e;">Total Pago</td>
+              <td style="padding:14px 20px;font-size:20px;color:#c9a84c;font-weight:700;">R$ ${parseFloat(ag.preco).toFixed(2).replace('.',',')}</td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:24px 40px;text-align:center;border-top:1px solid #2e2618;">
+          <p style="color:#7a6230;font-size:12px;margin:0;line-height:1.8;">
+            Em caso de dúvidas, entre em contato conosco.<br>
+            <span style="color:#c9a84c;">✦ Excellence in every cut ✦</span>
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
   });
-  res.status(201).json({ success: true, data: ag });
-});
 
-app.get('/api/agendamentos/:codigo', (req, res) => {
-  const ag = db.getAgendamentoByCodigo(req.params.codigo);
-  if (!ag) return res.status(404).json({ success: false, erro: 'Agendamento não encontrado.' });
-  res.json({ success: true, data: ag });
-});
+  console.log(`📧 E-mail confirmação enviado → ${ag.cliente_email}`);
+}
 
-app.patch('/api/agendamentos/:codigo/cancelar', (req, res) => {
-  const ag = db.getAgendamentoByCodigo(req.params.codigo);
-  if (!ag) return res.status(404).json({ success: false, erro: 'Não encontrado.' });
-  if (ag.status === 'cancelado') return res.status(400).json({ success: false, erro: 'Já cancelado.' });
-  db.atualizarAgendamento(req.params.codigo, { status: 'cancelado' });
-  res.json({ success: true });
-});
+// ─── E-MAIL PARA O BARBEIRO ──────────────────────────────────────────────────
+async function enviarNotificacaoBarbeiro(ag) {
+  const dest = process.env.EMAIL_NOTIF || process.env.EMAIL_USER;
 
-// ─── CHECKOUT PRO ─────────────────────────────────────────────────────────────
-// POST /api/pagamentos/checkout
-// Cria preference e retorna URL de pagamento
-app.post('/api/pagamentos/checkout', async (req, res) => {
-  const { codigo_agendamento } = req.body;
-  if (!codigo_agendamento)
-    return res.status(400).json({ success: false, erro: 'codigo_agendamento obrigatório.' });
+  await transporter.sendMail({
+    from: `"Blade & Steel Sistema" <${process.env.EMAIL_USER}>`,
+    to:   dest,
+    subject: `🆕 Novo Agendamento — ${ag.codigo} | ${ag.data} às ${ag.hora}`,
+    html: `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#0a0804;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0804;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:#1a1510;border:1px solid #2e2618;max-width:560px;width:100%;">
 
-  const ag = db.getAgendamentoByCodigo(codigo_agendamento);
-  if (!ag) return res.status(404).json({ success: false, erro: 'Agendamento não encontrado.' });
-  if (ag.pagamento_status === 'pago') return res.json({ success: true, ja_pago: true });
+        <tr><td style="padding:32px 40px;border-bottom:2px solid #c9a84c;text-align:center;">
+          <div style="font-size:11px;letter-spacing:4px;color:#c9a84c;text-transform:uppercase;margin-bottom:8px;">Novo Agendamento Recebido</div>
+          <div style="font-size:28px;font-weight:900;color:#f0e6d0;letter-spacing:2px;">BLADE <span style="color:#c9a84c">&amp;</span> STEEL</div>
+        </td></tr>
 
-  try {
-    const result = await mp.criarPreference({
-      valor:             ag.preco,
-      descricao:         `Blade & Steel — ${ag.servico_nome || 'Serviço'} (${ag.data} às ${ag.hora})`,
-      codigoAgendamento: ag.codigo,
-      clienteEmail:      ag.cliente_email,
-    });
+        <tr><td style="padding:28px 40px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #2e2618;">
+            <tr style="background:rgba(201,168,76,.08);">
+              <td colspan="2" style="padding:12px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#c9a84c;">Cliente</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;">
+              <td style="padding:12px 20px;font-size:11px;color:#a8956e;width:35%;">Nome</td>
+              <td style="padding:12px 20px;font-size:13px;color:#f0e6d0;font-weight:600;">${ag.cliente_nome}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;background:rgba(42,34,20,.4);">
+              <td style="padding:12px 20px;font-size:11px;color:#a8956e;">Telefone</td>
+              <td style="padding:12px 20px;font-size:13px;color:#f0e6d0;">${ag.cliente_tel || '—'}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;">
+              <td style="padding:12px 20px;font-size:11px;color:#a8956e;">E-mail</td>
+              <td style="padding:12px 20px;font-size:13px;color:#f0e6d0;">${ag.cliente_email || '—'}</td>
+            </tr>
 
-    db.atualizarAgendamento(ag.codigo, {
-      pagamento_mp_id: result.preference_id,
-      pagamento_tipo:  'checkout_pro',
-    });
+            <tr style="background:rgba(201,168,76,.08);">
+              <td colspan="2" style="padding:12px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#c9a84c;">Agendamento</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;">
+              <td style="padding:12px 20px;font-size:11px;color:#a8956e;">Serviço</td>
+              <td style="padding:12px 20px;font-size:13px;color:#f0e6d0;font-weight:600;">${ag.icone || '✂'} ${ag.servico_nome}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;background:rgba(42,34,20,.4);">
+              <td style="padding:12px 20px;font-size:11px;color:#a8956e;">Data</td>
+              <td style="padding:12px 20px;font-size:13px;color:#f0e6d0;font-weight:600;">${formatarData(ag.data)}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2e2618;">
+              <td style="padding:12px 20px;font-size:11px;color:#a8956e;">Horário</td>
+              <td style="padding:12px 20px;font-size:18px;color:#c9a84c;font-weight:700;">${ag.hora}</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;font-size:11px;color:#a8956e;">Valor</td>
+              <td style="padding:12px 20px;font-size:18px;color:#c9a84c;font-weight:700;">R$ ${parseFloat(ag.preco).toFixed(2).replace('.',',')}</td>
+            </tr>
+          </table>
 
-    console.log(`✅ Preference criada: ${ag.codigo} → ${result.preference_id}`);
-    res.json({ success: true, ...result });
-  } catch (err) {
-    console.error('MP Checkout erro:', err.message);
-    res.status(500).json({ success: false, erro: 'Erro ao criar checkout.', detalhe: err.message });
-  }
-});
+          <div style="margin-top:20px;padding:16px;background:rgba(201,168,76,.06);border:1px solid #2e2618;text-align:center;">
+            <span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7a6230;">Código: </span>
+            <span style="font-size:16px;color:#c9a84c;font-weight:700;letter-spacing:3px;">${ag.codigo}</span>
+          </div>
+        </td></tr>
 
-// GET /api/pagamentos/:codigo/status
-app.get('/api/pagamentos/:codigo/status', async (req, res) => {
-  const ag = db.getAgendamentoByCodigo(req.params.codigo);
-  if (!ag) return res.status(404).json({ success: false, erro: 'Não encontrado.' });
-  res.json({ success: true, status: ag.pagamento_status, status_agendamento: ag.status });
-});
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+  });
 
-// ─── RETORNO DO MP (back_urls) ────────────────────────────────────────────────
-app.get('/pagamento/sucesso', (req, res) => {
-  const { codigo, payment_id, status } = req.query;
-  if (codigo) {
-    db.atualizarAgendamento(codigo, {
-      pagamento_status: 'pago',
-      status: 'confirmado',
-      pagamento_mp_id: payment_id || null,
-    });
-  }
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
+  console.log(`📧 Notificação barbeiro enviada → ${dest}`);
+}
 
-app.get('/pagamento/pendente', (req, res) => {
-  const { codigo } = req.query;
-  if (codigo) {
-    db.atualizarAgendamento(codigo, { pagamento_status: 'pendente', status: 'confirmado' });
-  }
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-app.get('/pagamento/falha', (req, res) => {
-  const { codigo } = req.query;
-  if (codigo) {
-    db.atualizarAgendamento(codigo, { pagamento_status: 'recusado', status: 'cancelado' });
-  }
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-// ─── WEBHOOK ──────────────────────────────────────────────────────────────────
-app.post('/api/webhooks/mercadopago', async (req, res) => {
-  res.sendStatus(200);
-  try {
-    const body = Buffer.isBuffer(req.body) ? JSON.parse(req.body) : req.body;
-    const tipo = body?.type || req.query.topic;
-    const id   = body?.data?.id || req.query.id;
-    if (tipo === 'payment' && id) {
-      const info = await mp.consultarPagamento(id);
-      const codigo = info.referencia;
-      if (!codigo) return;
-      const map = {
-        approved:   { pagamento_status: 'pago',     status: 'confirmado' },
-        pending:    { pagamento_status: 'pendente',  status: 'confirmado' },
-        in_process: { pagamento_status: 'pendente',  status: 'confirmado' },
-        rejected:   { pagamento_status: 'recusado',  status: 'cancelado'  },
-      };
-      const novos = map[info.status];
-      if (novos) {
-        db.atualizarAgendamento(codigo, { ...novos, pagamento_mp_id: String(id) });
-        console.log(`✅ Webhook: ${codigo} → ${info.status}`);
-      }
-    }
-  } catch (err) { console.error('Webhook erro:', err.message); }
-});
-
-// ─── ADMIN ────────────────────────────────────────────────────────────────────
-app.get('/api/admin/dashboard', (req, res) =>
-  res.json({ success: true, data: db.getDashboard() }));
-
-app.get('/api/admin/agendamentos', (req, res) => {
-  const { data, status, pagamento_status } = req.query;
-  res.json({ success: true, data: db.getAgendamentos({ data, status, pagamento_status }) });
-});
-
-app.post('/api/admin/bloquear', (req, res) => {
-  const { data, hora_inicio, motivo } = req.body;
-  if (!data || !hora_inicio)
-    return res.status(400).json({ success: false, erro: 'data e hora_inicio obrigatórios.' });
-  db.bloquearHorario(data, hora_inicio, motivo);
-  res.status(201).json({ success: true });
-});
-
-app.get('/api/admin/configuracoes', (req, res) =>
-  res.json({ success: true, data: db.getConfig() }));
-
-app.put('/api/admin/configuracoes', (req, res) => {
-  db.setConfig(req.body);
-  res.json({ success: true });
-});
-
-app.get('*', (req, res) =>
-  res.sendFile(path.join(__dirname, '../frontend/index.html')));
-
-app.get('/', (req, res) => {
-  res.send('O backend da Blade & Steel está online! ⚔️');
-});
-
-app.listen(PORT, () => {
-  console.log(`\n🪒  Blade & Steel → http://localhost:${PORT}`);
-  console.log(`💳  Mercado Pago: ${process.env.MP_ACCESS_TOKEN ? '✅ Token configurado (Checkout Pro)' : '⚠️  Configure MP_ACCESS_TOKEN no .env'}`);
-  console.log(`📁  Dados: backend/data/db.json\n`);
-});
+module.exports = { enviarConfirmacaoCliente, enviarNotificacaoBarbeiro };

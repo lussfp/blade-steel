@@ -6,9 +6,8 @@
 <title>BLADE & STEEL — Barbearia Premium</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Josefin+Sans:wght@300;400;600;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
-
-<!-- Mercado Pago Checkout Pro -->
-
+<!-- QR Code gerado localmente (sem API externa) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root {
     --black:#0a0804; --dark:#111008; --surface:#1a1510;
@@ -22,8 +21,6 @@
   body{background:var(--black);color:var(--cream);font-family:'Josefin Sans',sans-serif;font-weight:300;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.4;}
   ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--dark);} ::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px;}
-
-  /* NAV */
   nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 4rem;background:linear-gradient(to bottom,rgba(10,8,4,.95) 0%,transparent 100%);border-bottom:1px solid rgba(201,168,76,.1);backdrop-filter:blur(8px);transition:all .4s;}
   nav.scrolled{background:rgba(10,8,4,.97);border-bottom-color:rgba(201,168,76,.2);}
   .nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;}
@@ -34,8 +31,6 @@
   .nav-links a:hover{color:var(--gold);} .nav-links a:hover::after{width:100%;}
   .nav-cta{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:.6rem 1.6rem;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
   .nav-cta:hover{background:var(--gold);color:var(--black);}
-
-  /* HERO */
   #hero{min-height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(201,168,76,.07) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 20% 80%,rgba(139,32,32,.08) 0%,transparent 50%),linear-gradient(180deg,var(--black) 0%,#0d0a06 100%);}
   .hero-ornament{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border-radius:50%;border:1px solid rgba(201,168,76,.06);animation:slowRotate 30s linear infinite;}
@@ -56,8 +51,6 @@
   .hero-scroll{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--gold-dim);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;animation:bounce 2s infinite;}
   .hero-scroll::after{content:'';width:1px;height:50px;background:linear-gradient(to bottom,var(--gold-dim),transparent);}
   @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(8px);}}
-
-  /* SECTIONS */
   section{padding:8rem 4rem;}
   .section-header{text-align:center;margin-bottom:5rem;}
   .section-label{display:inline-block;font-size:.65rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
@@ -66,8 +59,6 @@
   .divider{display:flex;align-items:center;justify-content:center;gap:1rem;margin:1.5rem auto 0;}
   .divider::before,.divider::after{content:'';flex:1;max-width:80px;height:1px;background:linear-gradient(to right,transparent,var(--gold-dim));}
   .divider::after{background:linear-gradient(to left,transparent,var(--gold-dim));}
-
-  /* SERVICES SECTION */
   #servicos-section{background:var(--dark);}
   .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2px;max-width:1200px;margin:0 auto;}
   .service-card{background:var(--card);padding:3rem 2.5rem;position:relative;overflow:hidden;border:1px solid var(--border);transition:all .4s;}
@@ -80,8 +71,6 @@
   .service-price{font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;}
   .service-price span{font-size:1rem;color:var(--cream-dim);}
   .service-duration{font-size:.7rem;letter-spacing:.15em;color:var(--cream-dim);text-transform:uppercase;margin-top:.3rem;}
-
-  /* BOOKING */
   #agendamento{background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(201,168,76,.05) 0%,transparent 60%),var(--dark);}
   .booking-container{max-width:860px;margin:0 auto;background:var(--card);border:1px solid var(--border);position:relative;overflow:hidden;}
   .booking-container::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold-light),var(--gold),transparent);}
@@ -101,8 +90,6 @@
   @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
   .step-title{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--cream);margin-bottom:.5rem;}
   .step-desc{font-size:.8rem;color:var(--cream-dim);margin-bottom:2.5rem;line-height:1.8;}
-
-  /* FORMS */
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
   .field-row.full{grid-template-columns:1fr;}
   @media(max-width:600px){.field-row{grid-template-columns:1fr;}}
@@ -110,9 +97,6 @@
   .field label{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-dim);}
   .field input,.field select{background:var(--surface);border:1px solid var(--border);color:var(--cream);padding:.8rem 1rem;font-family:'Josefin Sans',sans-serif;font-size:.85rem;transition:border-color .3s;outline:none;}
   .field input:focus,.field select:focus{border-color:var(--gold-dim);}
-  .field input.error{border-color:rgba(139,32,32,.8);}
-
-  /* SERVICE OPTIONS */
   .service-select-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
   .service-option{border:1px solid var(--border);padding:1.5rem;cursor:pointer;transition:all .3s;position:relative;background:var(--surface);}
   .service-option:hover{border-color:var(--gold-dim);}
@@ -122,8 +106,6 @@
   .sopt-name{font-size:.9rem;font-weight:600;color:var(--cream);margin-bottom:.3rem;}
   .sopt-price{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);}
   .sopt-dur{font-size:.65rem;color:var(--cream-dim);text-transform:uppercase;letter-spacing:.15em;}
-
-  /* CALENDAR */
   .alert-box{border:1px solid rgba(139,32,32,.5);background:rgba(139,32,32,.1);padding:1rem 1.5rem;margin:1rem 0;display:none;}
   .alert-box.show{display:block;animation:fadeIn .3s ease;}
   .alert-title{font-size:.8rem;color:#e05555;font-weight:700;margin-bottom:.3rem;}
@@ -151,8 +133,6 @@
   .slot:hover:not(.unavailable){border-color:var(--gold-dim);color:var(--cream);}
   .slot.selected{background:var(--gold);color:var(--black);border-color:var(--gold);font-weight:700;}
   .slot.unavailable{background:rgba(139,32,32,.15);color:var(--border);border-color:rgba(139,32,32,.3);cursor:not-allowed;text-decoration:line-through;}
-
-  /* PAYMENT */
   .summary-card{background:var(--surface);border:1px solid var(--border);padding:2rem;margin-bottom:2rem;}
   .summary-row{display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.8rem;}
   .summary-row:last-child{border-bottom:none;}
@@ -161,44 +141,31 @@
   .summary-total{display:flex;justify-content:space-between;align-items:center;padding-top:1rem;}
   .summary-total .lbl{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--cream);}
   .summary-total .val{font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;}
-  .payment-tabs{display:flex;margin-bottom:2rem;border:1px solid var(--border);}
-  .pay-tab{flex:1;padding:1rem;text-align:center;cursor:pointer;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--cream-dim);transition:all .3s;border-right:1px solid var(--border);}
-  .pay-tab:last-child{border-right:none;}
-  .pay-tab.active{background:rgba(201,168,76,.08);color:var(--gold);}
-  .pay-content{display:none;} .pay-content.active{display:block;animation:fadeIn .3s ease;}
 
   /* PIX */
-  .pix-wrap{text-align:center;}
-  .pix-loading{padding:3rem;display:flex;flex-direction:column;align-items:center;gap:1rem;color:var(--cream-dim);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;}
-  .spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+  .pix-section{text-align:center;}
+  .spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto;}
   @keyframes spin{to{transform:rotate(360deg);}}
-  .qr-container{display:inline-block;padding:1.5rem;background:white;margin:1.5rem 0;}
-  .qr-img{width:180px;height:180px;display:block;}
+  .pix-loading{padding:3rem;display:flex;flex-direction:column;align-items:center;gap:1rem;color:var(--cream-dim);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;}
+  .qr-container{display:inline-block;padding:1.5rem;background:white;margin:1.5rem auto;}
+  .pix-tabs{display:flex;border:1px solid var(--border);margin-bottom:1.5rem;}
+  .pix-tab{flex:1;padding:.8rem;text-align:center;cursor:pointer;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--cream-dim);transition:all .3s;border-right:1px solid var(--border);}
+  .pix-tab:last-child{border-right:none;}
+  .pix-tab.active{background:rgba(201,168,76,.08);color:var(--gold);}
+  .pix-panel{display:none;} .pix-panel.active{display:block;animation:fadeIn .3s ease;}
   .pix-code-wrap{display:flex;align-items:center;gap:.5rem;border:1px solid var(--border);padding:.8rem 1rem;margin:1rem 0;background:var(--surface);}
-  .pix-code{flex:1;font-size:.65rem;color:var(--cream-dim);font-family:monospace;word-break:break-all;}
+  .pix-code{flex:1;font-size:.65rem;color:var(--cream-dim);font-family:monospace;word-break:break-all;text-align:left;}
   .copy-btn{background:var(--gold);color:var(--black);border:none;padding:.4rem .8rem;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-weight:700;transition:background .3s;white-space:nowrap;}
   .copy-btn:hover{background:var(--gold-light);}
-  .pix-info{font-size:.75rem;color:var(--cream-dim);line-height:1.8;}
-  .pix-timer{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold);margin:.5rem 0;}
-  .pix-status-check{margin-top:1.5rem;padding:1rem;border:1px solid var(--border);background:var(--surface);font-size:.75rem;color:var(--cream-dim);display:flex;align-items:center;justify-content:space-between;gap:1rem;}
-  .btn-check-pix{background:none;border:1px solid var(--gold-dim);color:var(--gold);padding:.4rem 1rem;font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .3s;white-space:nowrap;}
-  .btn-check-pix:hover{background:rgba(201,168,76,.1);}
+  .pix-info-box{border:1px solid var(--border);background:var(--surface);padding:1.2rem;margin-top:1rem;font-size:.75rem;color:var(--cream-dim);line-height:1.8;text-align:left;}
+  .pix-info-box strong{color:var(--gold);}
 
-  /* CARD FORM */
-  #card-form .field input{background:var(--surface);}
-  .card-error{font-size:.7rem;color:#e05555;margin-top:.3rem;display:none;}
-  .card-error.show{display:block;}
-  .installments-info{font-size:.7rem;color:var(--cream-dim);margin-top:.3rem;}
-
-  /* NAV BUTTONS */
   .step-nav{display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border);}
   .btn-back{background:none;border:1px solid var(--border);color:var(--cream-dim);padding:.8rem 2rem;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
   .btn-back:hover{border-color:var(--gold-dim);color:var(--cream);}
   .btn-next{background:var(--gold);color:var(--black);border:none;padding:.8rem 2.5rem;font-family:'Josefin Sans',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:.5rem;}
   .btn-next:hover:not(:disabled){background:var(--gold-light);}
   .btn-next:disabled{background:var(--border);color:var(--cream-dim);cursor:not-allowed;}
-
-  /* SUCCESS */
   .success-wrap{text-align:center;padding:3rem 1rem;display:none;}
   .success-wrap.show{display:block;animation:fadeIn .5s ease;}
   .success-icon{width:80px;height:80px;border-radius:50%;background:rgba(30,92,58,.2);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 2rem;animation:scaleIn .5s cubic-bezier(.16,1,.3,1);}
@@ -206,15 +173,11 @@
   .success-title{font-family:'Playfair Display',serif;font-size:2rem;color:var(--cream);margin-bottom:.5rem;}
   .booking-code{display:inline-block;margin:1.5rem 0;padding:.8rem 2rem;border:1px solid var(--gold);font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);letter-spacing:.3em;}
   .success-sub{font-size:.85rem;color:var(--cream-dim);line-height:1.8;}
-
-  /* API STATUS */
   .api-status{position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;padding:.5rem 1rem;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;border:1px solid;display:flex;align-items:center;gap:.5rem;backdrop-filter:blur(8px);}
   .api-status.online{border-color:rgba(30,92,58,.6);background:rgba(30,92,58,.15);color:#4ade80;}
   .api-status.offline{border-color:rgba(139,32,32,.6);background:rgba(139,32,32,.15);color:#f87171;}
   .api-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 2s ease infinite;}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
-  /* FOOTER */
   footer{background:var(--dark);padding:5rem 4rem 2rem;border-top:1px solid var(--border);}
   .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:4rem;}
   @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;}}
@@ -235,7 +198,6 @@
   <span id="api-status-text">Conectando...</span>
 </div>
 
-<!-- NAV -->
 <nav id="navbar">
   <div class="nav-logo">Blade <span>&</span> Steel</div>
   <ul class="nav-links">
@@ -245,7 +207,6 @@
   <button class="nav-cta" onclick="scrollToBook()">Agendar</button>
 </nav>
 
-<!-- HERO -->
 <section id="hero">
   <div class="hero-bg"></div>
   <div class="hero-ornament"></div>
@@ -261,7 +222,6 @@
   <div class="hero-scroll">Rolar</div>
 </section>
 
-<!-- SERVICES -->
 <section id="servicos-section">
   <div class="section-header">
     <div class="section-label">— O que oferecemos —</div>
@@ -273,7 +233,6 @@
   </div>
 </section>
 
-<!-- BOOKING -->
 <section id="agendamento">
   <div class="section-header">
     <div class="section-label">— Reserve seu horário —</div>
@@ -289,7 +248,6 @@
     </div>
 
     <div class="booking-body">
-
       <!-- STEP 1 -->
       <div class="step-content active" id="step-1">
         <div class="step-title">Seus Dados &amp; Serviço</div>
@@ -344,27 +302,61 @@
       <!-- STEP 3 -->
       <div class="step-content" id="step-3">
         <div class="step-title">Confirmar &amp; Pagar</div>
-        <p class="step-desc">Revise seu agendamento e escolha como pagar.</p>
+        <p class="step-desc">Revise seu agendamento e efetue o pagamento via PIX.</p>
         <div class="summary-card" id="booking-summary"></div>
-        <!-- CHECKOUT PRO -->
-        <div style="text-align:center;padding:1.5rem 0;">
-          <div style="display:inline-flex;align-items:center;gap:.8rem;border:1px solid var(--border);padding:1rem 2rem;margin-bottom:1.5rem;background:var(--surface);">
-            <span style="font-size:1.2rem">💳</span>
-            <span style="font-size:.75rem;color:var(--cream-dim);letter-spacing:.1em">PIX · Cartão · Boleto</span>
+
+        <!-- PIX loading -->
+        <div class="pix-loading" id="pix-loading" style="display:none">
+          <div class="spinner"></div>
+          <span>Gerando dados de pagamento...</span>
+        </div>
+
+        <!-- PIX dados -->
+        <div id="pix-dados" style="display:none">
+          <!-- Tabs: QR Code | Chave Aleatória -->
+          <div class="pix-tabs">
+            <div class="pix-tab active" onclick="switchPixTab('qr',this)">📱 QR Code</div>
+            <div class="pix-tab" onclick="switchPixTab('chave',this)">🔑 Chave Aleatória</div>
           </div>
-          <p style="font-size:.8rem;color:var(--cream-dim);line-height:1.8;max-width:400px;margin:0 auto 1.5rem">
-            Ao confirmar, você será redirecionado para a página segura do <strong style="color:var(--gold)">Mercado Pago</strong> para concluir o pagamento.
-          </p>
-          <div id="checkout-loading" style="display:none;flex-direction:column;align-items:center;gap:1rem;color:var(--cream-dim);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;padding:2rem">
-            <div class="spinner"></div>
-            <span>Preparando pagamento...</span>
+
+          <!-- QR Code -->
+          <div class="pix-panel active" id="pix-panel-qr">
+            <div class="pix-section">
+              <p style="font-size:.75rem;color:var(--cream-dim);margin-bottom:1rem">Escaneie com o app do seu banco</p>
+              <div class="qr-container" id="qr-container"></div>
+              <p style="font-size:.7rem;color:var(--cream-dim);margin:.5rem 0">ou copie o código abaixo</p>
+              <div class="pix-code-wrap">
+                <span class="pix-code" id="pix-qr-code"></span>
+                <button class="copy-btn" onclick="copiar('pix-qr-code', this)">Copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chave Aleatória -->
+          <div class="pix-panel" id="pix-panel-chave">
+            <div class="pix-section" style="padding:1rem 0">
+              <p style="font-size:.75rem;color:var(--cream-dim);margin-bottom:1rem">Abra o app do seu banco → PIX → Pagar → Chave PIX</p>
+              <div class="pix-code-wrap">
+                <span class="pix-code" id="pix-chave-aleatoria"></span>
+                <button class="copy-btn" onclick="copiar('pix-chave-aleatoria', this)">Copiar</button>
+              </div>
+              <div class="pix-info-box">
+                <strong>Recebedor:</strong> <span id="pix-nome-recebedor"></span><br>
+                <strong>Valor:</strong> R$ <span id="pix-valor"></span><br>
+                <strong>Descrição:</strong> Blade &amp; Steel — Agendamento
+              </div>
+            </div>
+          </div>
+
+          <div class="pix-info-box" style="margin-top:1.5rem;text-align:center">
+            ⚠️ Após pagar, <strong style="color:var(--gold)">guarde seu código de agendamento</strong>. O barbeiro confirmará o pagamento em até alguns minutos.
           </div>
         </div>
 
         <div class="step-nav" id="payment-nav">
-          <button class="btn-back" onclick="goStep(2)">← Voltar</button>
+          <button class="btn-back" onclick="goStep(2)" id="btn-voltar">← Voltar</button>
           <button class="btn-next" id="btn-confirmar" onclick="iniciarPagamento()">
-            <span id="btn-confirmar-text">Confirmar e Ir para Pagamento →</span>
+            <span id="btn-confirmar-text">Confirmar e Gerar PIX →</span>
           </button>
         </div>
       </div>
@@ -372,7 +364,7 @@
       <!-- SUCCESS -->
       <div class="success-wrap" id="success-wrap">
         <div class="success-icon">✓</div>
-        <div class="success-title">Agendamento Confirmado!</div>
+        <div class="success-title">Agendamento Realizado!</div>
         <div class="booking-code" id="booking-code">BS-000000</div>
         <p class="success-sub" id="success-details"></p>
         <button class="btn-primary" style="margin-top:2rem" onclick="resetBooking()">Novo Agendamento</button>
@@ -398,28 +390,20 @@
 </footer>
 
 <script>
-  const API = 'https://blade-steel-production.up.railway.app';;
-  
-  console.log("Tentando conectar em:", API);
-fetch(`${API}/api/servicos`)
-  .then(res => res.json())
-  .then(data => console.log("Dados recebidos com sucesso:", data))
-  .catch(err => console.error("Erro fatal na conexão:", err));
+const API = 'https://blade-steel-production.up.railway.app';
 
-
-// ─── STATE ───────────────────────────────────────────────────────────────────
 let state = {
   step:1, servicos:[], servico:null,
   clienteNome:'', clienteEmail:'', clienteTel:'',
   date:null, time:null, codigoAgendamento:null,
   calYear: new Date().getFullYear(), calMonth: new Date().getMonth(),
-  slotsData:null, suggestedSlot:null,
+  slotsData:null, suggestedSlot:null, pixGerado:false,
 };
 
+// ─── API STATUS ──────────────────────────────────────────────────────────────
 async function checkAPI() {
   try {
-// De: ${API}/servicos
-const r = await fetch(`${API}/api/servicos`, { signal: AbortSignal.timeout(3000) });;
+    const r = await fetch(`${API}/api/servicos`, { signal: AbortSignal.timeout(4000) });
     if(r.ok){ setApiStatus(true); return; }
   } catch{}
   setApiStatus(false);
@@ -430,11 +414,12 @@ function setApiStatus(online) {
   document.getElementById('api-status-text').textContent=online?'API Online':'API Offline';
 }
 
-// ─── SERVICES ────────────────────────────────────────────────────────────────
+// ─── SERVIÇOS ────────────────────────────────────────────────────────────────
 async function loadServicos() {
   try {
-    const r = await fetch(`${API}/api/servicos`); const j = await r.json();;
-    state.servicos=j.data;
+    const r = await fetch(`${API}/api/servicos`);
+    const j = await r.json();
+    state.servicos = j.data;
   } catch {
     state.servicos=[
       {id:1,nome:'Corte Clássico',icone:'✂',preco:65,duracao:45,descricao:'Corte personalizado com tesoura e máquina.'},
@@ -476,7 +461,7 @@ function checkStep1() {
   document.getElementById('next-1').disabled=!(state.clienteNome.length>=2&&state.servico);
 }
 
-// ─── CALENDAR ────────────────────────────────────────────────────────────────
+// ─── CALENDÁRIO ──────────────────────────────────────────────────────────────
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DOWS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
@@ -513,9 +498,8 @@ async function selectDate(ds) {
   const g=document.getElementById('slots-grid');
   g.innerHTML='<p style="grid-column:1/-1;font-size:.75rem;color:var(--cream-dim);padding:.5rem">⏳ Verificando...</p>';
   try {
-    // De: ${API}/disponibilidade/${ds}
-  const r = await fetch(`${API}/api/disponibilidade/${ds}`);
-   const j=await r.json();
+    const r=await fetch(`${API}/api/disponibilidade/${ds}`);
+    const j=await r.json();
     state.slotsData=j.data;
     g.innerHTML=j.data.aberto
       ? j.data.slots.map(s=>`<div class="slot${!s.disponivel?' unavailable':''}${state.time===s.hora?' selected':''}" ${s.disponivel?`onclick="selectSlot('${s.hora}',this)"`:''} >${s.hora}</div>`).join('')
@@ -528,7 +512,7 @@ async function selectDate(ds) {
 async function selectSlot(hora,el) {
   hideAlert();
   try {
-    const r = await fetch(`${API}/api/disponibilidade/${state.date}/${hora}/verificar`);
+    const r=await fetch(`${API}/api/disponibilidade/${state.date}/${hora}/verificar`);
     const j=await r.json();
     if(!j.disponivel){ showAlert(hora,j.sugestao); await selectDate(state.date); return; }
   } catch {}
@@ -565,6 +549,14 @@ function goStep(n) {
     state.clienteEmail=document.getElementById('cliente-email').value.trim();
     state.clienteTel=document.getElementById('cliente-tel').value.trim();
     renderSummary();
+    // Reseta PIX se voltar e trocar horário
+    if(!state.pixGerado){
+      document.getElementById('pix-dados').style.display='none';
+      document.getElementById('pix-loading').style.display='none';
+      document.getElementById('btn-confirmar').disabled=false;
+      document.getElementById('btn-confirmar-text').textContent='Confirmar e Gerar PIX →';
+      document.getElementById('btn-voltar').disabled=false;
+    }
   }
   window.scrollTo({top:document.getElementById('agendamento').offsetTop-80,behavior:'smooth'});
 }
@@ -581,108 +573,108 @@ function renderSummary() {
     <div class="summary-total"><span class="lbl">Total</span><span class="val">R$ ${state.servico.preco},00</span></div>`;
 }
 
-// ─── CRIAR AGENDAMENTO ───────────────────────────────────────────────────────
-async function criarAgendamento() {
-  const r = await fetch(`${API}/api/agendamentos`,{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      cliente_nome:state.clienteNome, cliente_email:state.clienteEmail||undefined,
-      cliente_tel:state.clienteTel||undefined, servico_id:state.servico.id,
-      data:state.date, hora:state.time,
-    })
-  });
-  const j=await r.json();
-  if(!j.success) throw new Error(j.erro||'Erro ao criar agendamento');
-  return j.data.codigo;
+// ─── PIX TABS ────────────────────────────────────────────────────────────────
+function switchPixTab(tab, el) {
+  document.querySelectorAll('.pix-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pix-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pix-panel-'+tab).classList.add('active');
 }
 
-// ─── INICIAR PAGAMENTO (CHECKOUT PRO) ────────────────────────────────────────
+// ─── INICIAR PAGAMENTO ───────────────────────────────────────────────────────
 async function iniciarPagamento() {
-  const btn=document.getElementById('btn-confirmar');
-  btn.disabled=true;
-  document.getElementById('btn-confirmar-text').textContent='⏳ Processando...';
-  document.getElementById('checkout-loading').style.display='flex';
+  const btn = document.getElementById('btn-confirmar');
+  btn.disabled = true;
+  document.getElementById('btn-confirmar-text').textContent = '⏳ Processando...';
+  document.getElementById('btn-voltar').disabled = true;
+  document.getElementById('pix-loading').style.display = 'flex';
 
   try {
-    // 1. Cria o agendamento
-    const codigo = await criarAgendamento();
-    state.codigoAgendamento = codigo;
-
-    // 2. Cria a preference no MP e obtém a URL
-    const r = await fetch(`${API}/api/pagamentos/checkout`, {
+    // 1. Cria agendamento
+    const r1 = await fetch(`${API}/api/agendamentos`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ codigo_agendamento: codigo })
+      body: JSON.stringify({
+        cliente_nome: state.clienteNome,
+        cliente_email: state.clienteEmail || undefined,
+        cliente_tel: state.clienteTel || undefined,
+        servico_id: state.servico.id,
+        data: state.date, hora: state.time,
+      })
     });
-    const j = await r.json();
-    if(!j.success) throw new Error(j.erro||'Erro ao criar checkout');
+    const j1 = await r1.json();
+    if(!j1.success) throw new Error(j1.erro || 'Erro ao criar agendamento');
+    state.codigoAgendamento = j1.data.codigo;
 
-    // 3. Redireciona para o MP
-    // Em produção usa url_checkout, em sandbox usa url_sandbox
-    const url = j.url_checkout || j.url_sandbox;
-    window.location.href = url;
+    // 2. Gera PIX
+    const r2 = await fetch(`${API}/api/pagamentos/pix`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ codigo_agendamento: state.codigoAgendamento })
+    });
+    const j2 = await r2.json();
+    if(!j2.success) throw new Error(j2.erro || 'Erro ao gerar PIX');
+
+    // 3. Exibe dados PIX
+    document.getElementById('pix-loading').style.display = 'none';
+
+    // QR Code
+    document.getElementById('pix-qr-code').textContent = j2.qr_payload;
+    document.getElementById('qr-container').innerHTML = '';
+    new QRCode(document.getElementById('qr-container'), {
+      text: j2.qr_payload, width: 180, height: 180,
+      colorDark: '#000000', colorLight: '#ffffff',
+    });
+
+    // Chave aleatória
+    document.getElementById('pix-chave-aleatoria').textContent = j2.chave_aleatoria;
+    document.getElementById('pix-nome-recebedor').textContent  = j2.nome_recebedor;
+    document.getElementById('pix-valor').textContent           = j2.valor;
+
+    document.getElementById('pix-dados').style.display = 'block';
+    state.pixGerado = true;
+
+    // Muda botão para "Já Paguei → Ver Confirmação"
+    btn.disabled = false;
+    btn.onclick  = () => showSuccess(state.codigoAgendamento);
+    document.getElementById('btn-confirmar-text').textContent = 'Já Paguei — Ver Confirmação ✓';
+    document.getElementById('btn-voltar').disabled = false;
 
   } catch(err) {
-    document.getElementById('checkout-loading').style.display='none';
-    btn.disabled=false;
-    document.getElementById('btn-confirmar-text').textContent='Confirmar e Ir para Pagamento →';
-    alert('Erro: '+err.message);
+    document.getElementById('pix-loading').style.display = 'none';
+    btn.disabled = false;
+    document.getElementById('btn-confirmar-text').textContent = 'Confirmar e Gerar PIX →';
+    document.getElementById('btn-voltar').disabled = false;
+    alert('Erro: ' + err.message);
   }
 }
 
-// ─── RETORNO DO MP (após pagamento) ──────────────────────────────────────────
-function verificarRetornoMP() {
-  const params = new URLSearchParams(window.location.search);
-  const codigo  = params.get('codigo');
-  const status  = params.get('status');
-  const path    = window.location.pathname;
-
-  if (!codigo) return;
-
-  // Limpa a URL
-  window.history.replaceState({}, '', '/');
-
-  if (path.includes('sucesso') || status === 'approved') {
-    // Tenta recuperar dados do agendamento para mostrar na tela de sucesso
-    fetch(`${API}/agendamentos/${codigo}`)
-      .then(r => r.json())
-      .then(j => {
-        if(j.success) {
-          const ag = j.data;
-          // Restaura state mínimo para showSuccess funcionar
-          state.servico = { icone: ag.icone||'✂', nome: ag.servico_nome, preco: ag.preco, duracao: ag.duracao };
-          state.date    = ag.data;
-          state.time    = ag.hora;
-          showSuccess(codigo);
-          // Scroll para o agendamento
-          setTimeout(()=>document.getElementById('agendamento').scrollIntoView({behavior:'smooth'}), 300);
-        }
-      }).catch(()=>{});
-  } else if (path.includes('falha')) {
-    setTimeout(()=>{
-      alert('❌ Pagamento não concluído. Tente novamente.');
-      document.getElementById('agendamento').scrollIntoView({behavior:'smooth'});
-    }, 500);
-  } else if (path.includes('pendente')) {
-    setTimeout(()=>{
-      alert(`⏳ Pagamento pendente. Seu código é: ${codigo}\nVocê receberá a confirmação em breve.`);
-    }, 500);
-  }
+// ─── COPIAR ──────────────────────────────────────────────────────────────────
+function copiar(elId, btn) {
+  const texto = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(texto).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copiado!'; btn.style.background = 'var(--green)';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+  });
 }
 
-// ─── SUCCESS ──────────────────────────────────────────────────────────────────
+// ─── SUCCESS ─────────────────────────────────────────────────────────────────
 function showSuccess(codigo) {
-  document.getElementById('booking-code').textContent=codigo;
-  const d=new Date(state.date+'T12:00:00');
-  const ds=d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'});
-  document.getElementById('success-details').innerHTML=
-    `${state.servico.icone} ${state.servico.nome}<br>${ds} às ${state.time} — R$ ${state.servico.preco},00<br><br><span style="color:var(--gold)">Guarde seu código acima. Até breve! ✦</span>`;
+  document.getElementById('booking-code').textContent = codigo;
+  const d = new Date(state.date+'T12:00:00');
+  const ds = d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'});
+  document.getElementById('success-details').innerHTML =
+    `${state.servico.icone} ${state.servico.nome}<br>${ds} às ${state.time} — R$ ${state.servico.preco},00<br><br>
+    <span style="color:var(--gold)">Guarde seu código acima.<br>O barbeiro confirmará o pagamento em breve. Até logo! ✦</span>`;
   document.querySelectorAll('.step-content').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.step-tab').forEach(e=>{e.classList.remove('active','done');e.querySelector('.step-num').textContent=e.dataset.step;});
   document.getElementById('success-wrap').classList.add('show');
 }
 
 function resetBooking() {
-  state={step:1,servicos:state.servicos,servico:null,clienteNome:'',clienteEmail:'',clienteTel:'',date:null,time:null,codigoAgendamento:null,calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),slotsData:null,suggestedSlot:null};
+  state={step:1,servicos:state.servicos,servico:null,clienteNome:'',clienteEmail:'',clienteTel:'',
+    date:null,time:null,codigoAgendamento:null,
+    calYear:new Date().getFullYear(),calMonth:new Date().getMonth(),
+    slotsData:null,suggestedSlot:null,pixGerado:false};
   document.getElementById('success-wrap').classList.remove('show');
   document.querySelectorAll('.service-option').forEach(e=>e.classList.remove('selected'));
   document.getElementById('cliente-nome').value='';
@@ -690,16 +682,19 @@ function resetBooking() {
   document.getElementById('cliente-tel').value='';
   document.getElementById('next-1').disabled=true;
   document.getElementById('next-2').disabled=true;
+  document.getElementById('pix-dados').style.display='none';
+  document.getElementById('pix-loading').style.display='none';
   document.getElementById('payment-nav').style.display='flex';
   document.getElementById('btn-confirmar').disabled=false;
-  document.getElementById('btn-confirmar-text').textContent='Confirmar e Ir para Pagamento →';
-  document.getElementById('checkout-loading').style.display='none';
+  document.getElementById('btn-confirmar').onclick=iniciarPagamento;
+  document.getElementById('btn-confirmar-text').textContent='Confirmar e Gerar PIX →';
+  document.getElementById('btn-voltar').disabled=false;
+  document.getElementById('qr-container').innerHTML='';
   hideAlert(); renderCalendar();
   document.getElementById('slots-grid').innerHTML='<p style="grid-column:1/-1;font-size:.75rem;color:var(--cream-dim);padding:.5rem">Selecione uma data.</p>';
   goStep(1);
 }
 
-// ─── UTILS ───────────────────────────────────────────────────────────────────
 function scrollToBook(){document.getElementById('agendamento').scrollIntoView({behavior:'smooth'});}
 
 async function init() {
@@ -707,7 +702,6 @@ async function init() {
   await checkAPI();
   await loadServicos();
   renderCalendar();
-  verificarRetornoMP(); // verifica se voltou do MP após pagamento
 }
 
 init();
