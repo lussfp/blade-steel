@@ -1,0 +1,90 @@
+{
+  "servicos": [
+    {
+      "id": 1,
+      "nome": "Corte Clássico",
+      "descricao": "Corte personalizado com tesoura e máquina.",
+      "preco": 65,
+      "duracao": 45,
+      "icone": "✂",
+      "ativo": 1
+    },
+    {
+      "id": 2,
+      "nome": "Barba Completa",
+      "descricao": "Barba desenhada, aparada e hidratada.",
+      "preco": 55,
+      "duracao": 40,
+      "icone": "🪒",
+      "ativo": 1
+    },
+    {
+      "id": 3,
+      "nome": "Combo Premium",
+      "descricao": "Corte + Barba. O pacote mais completo.",
+      "preco": 110,
+      "duracao": 80,
+      "icone": "⚡",
+      "ativo": 1
+    },
+    {
+      "id": 4,
+      "nome": "Design de Sobrancelha",
+      "descricao": "Modelagem com pinça e linha.",
+      "preco": 30,
+      "duracao": 20,
+      "icone": "👁",
+      "ativo": 1
+    },
+    {
+      "id": 5,
+      "nome": "Relaxamento Capilar",
+      "descricao": "Hidratação profunda do couro cabeludo.",
+      "preco": 90,
+      "duracao": 60,
+      "icone": "🌿",
+      "ativo": 1
+    },
+    {
+      "id": 6,
+      "nome": "Coloração",
+      "descricao": "Coloração profissional.",
+      "preco": 130,
+      "duracao": 90,
+      "icone": "🎨",
+      "ativo": 1
+    }
+  ],
+  "agendamentos": [
+    {
+      "id": 1,
+      "codigo": "BS-BYFWBF",
+      "cliente_nome": "luis",
+      "cliente_email": "brmagosso@gmail.com",
+      "cliente_tel": "14998016347",
+      "servico_id": 1,
+      "data": "2026-03-16",
+      "hora": "16:00",
+      "duracao": 45,
+      "preco": 65,
+      "status": "aguardando_pagamento",
+      "pagamento_tipo": "checkout_pro",
+      "pagamento_status": "pendente",
+      "pagamento_mp_id": null,
+      "observacoes": null,
+      "criado_em": "2026-03-12T16:48:23.671Z"
+    }
+  ],
+  "horarios_bloqueados": [],
+  "configuracoes": {
+    "barbeiro_nome": "Marcus Silva",
+    "horario_inicio": "09:00",
+    "horario_fim": "19:00",
+    "intervalo_min": "60",
+    "dias_funcionamento": "1,2,3,4,5,6"
+  },
+  "_nextId": {
+    "agendamentos": 2,
+    "bloqueados": 1
+  }
+}
