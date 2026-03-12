@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-app.use(cors()); 
 const crypto  = require('crypto');
 const path    = require('path');
 const db      = require('./db');
