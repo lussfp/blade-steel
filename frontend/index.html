@@ -403,7 +403,7 @@ fetch(`${API}/api/servicos`)
   .then(res => res.json())
   .then(data => console.log("Dados recebidos com sucesso:", data))
   .catch(err => console.error("Erro fatal na conexão:", err));
-  
+
 const API = 'https://blade-steel-production.up.railway.app/';;
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
@@ -417,7 +417,8 @@ let state = {
 
 async function checkAPI() {
   try {
-    const r = await fetch(`${API}/servicos`,{signal:AbortSignal.timeout(3000)});
+// De: ${API}/servicos
+const r = await fetch(`${API}/api/servicos`, { signal: AbortSignal.timeout(3000) });;
     if(r.ok){ setApiStatus(true); return; }
   } catch{}
   setApiStatus(false);
@@ -431,16 +432,14 @@ function setApiStatus(online) {
 // ─── SERVICES ────────────────────────────────────────────────────────────────
 async function loadServicos() {
   try {
-    const r=await fetch(`${API}/servicos`); const j=await r.json();
+    const r = await fetch(`${API}/api/servicos`); const j = await r.json();;
     state.servicos=j.data;
   } catch {
     state.servicos=[
       {id:1,nome:'Corte Clássico',icone:'✂',preco:65,duracao:45,descricao:'Corte personalizado com tesoura e máquina.'},
       {id:2,nome:'Barba Completa',icone:'🪒',preco:55,duracao:40,descricao:'Barba desenhada, aparada e hidratada.'},
       {id:3,nome:'Combo Premium',icone:'⚡',preco:110,duracao:80,descricao:'Corte + Barba. O pacote mais completo.'},
-      {id:4,nome:'Sobrancelha',icone:'👁',preco:30,duracao:20,descricao:'Design com pinça e linha.'},
-      {id:5,nome:'Relaxamento',icone:'🌿',preco:90,duracao:60,descricao:'Hidratação profunda.'},
-      {id:6,nome:'Coloração',icone:'🎨',preco:130,duracao:90,descricao:'Coloração profissional.'},
+      {id:4,nome:'Coloração',icone:'🎨',preco:130,duracao:90,descricao:'Coloração profissional.'},
     ];
   }
   renderServicos();
@@ -513,7 +512,9 @@ async function selectDate(ds) {
   const g=document.getElementById('slots-grid');
   g.innerHTML='<p style="grid-column:1/-1;font-size:.75rem;color:var(--cream-dim);padding:.5rem">⏳ Verificando...</p>';
   try {
-    const r=await fetch(`${API}/disponibilidade/${ds}`); const j=await r.json();
+    // De: ${API}/disponibilidade/${ds}
+  const r = await fetch(`${API}/api/disponibilidade/${ds}`);
+   const j=await r.json();
     state.slotsData=j.data;
     g.innerHTML=j.data.aberto
       ? j.data.slots.map(s=>`<div class="slot${!s.disponivel?' unavailable':''}${state.time===s.hora?' selected':''}" ${s.disponivel?`onclick="selectSlot('${s.hora}',this)"`:''} >${s.hora}</div>`).join('')
@@ -526,7 +527,7 @@ async function selectDate(ds) {
 async function selectSlot(hora,el) {
   hideAlert();
   try {
-    const r=await fetch(`${API}/disponibilidade/${state.date}/${hora}/verificar`);
+    const r = await fetch(`${API}/api/disponibilidade/${state.date}/${hora}/verificar`);
     const j=await r.json();
     if(!j.disponivel){ showAlert(hora,j.sugestao); await selectDate(state.date); return; }
   } catch {}
@@ -581,7 +582,7 @@ function renderSummary() {
 
 // ─── CRIAR AGENDAMENTO ───────────────────────────────────────────────────────
 async function criarAgendamento() {
-  const r=await fetch(`${API}/agendamentos`,{
+  const r = await fetch(`${API}/api/agendamentos`,{
     method:'POST', headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       cliente_nome:state.clienteNome, cliente_email:state.clienteEmail||undefined,
@@ -607,7 +608,7 @@ async function iniciarPagamento() {
     state.codigoAgendamento = codigo;
 
     // 2. Cria a preference no MP e obtém a URL
-    const r = await fetch(`${API}/pagamentos/checkout`, {
+    const r = await fetch(`${API}/api/pagamentos/checkout`, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ codigo_agendamento: codigo })
     });
