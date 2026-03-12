@@ -606,20 +606,12 @@ async function iniciarPagamento() {
     state.codigoAgendamento = j1.data.codigo;
 
     // 2. Gera PIX
-    const r2 = await fetch(`${API}/api/pagamentos/pix`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ codigo_agendamento: state.codigoAgendamento })
-    });
-    const j2 = await r2.json();
-    if(!j2.success) throw new Error(j2.erro || 'Erro ao gerar PIX');
+    const r2 = await fetch(⁠`${API}/agendamentos/${j.id}/pix`⁠);
+const j2 = await r2.json();
 
-    // 3. Exibe dados PIX
-    document.getElementById('pix-loading').style.display = 'none';
+document.getElementById('pix-code').value = j2.qr_payload;
 
-    // QR Code
-    document.getElementById('pix-qr-code').textContent = j2.qr_payload;
-    document.getElementById('qr-container').innerHTML = '';
-    const canvas = document.createElement('canvas');
+const canvas = document.createElement('canvas');
 document.getElementById('qr-container').innerHTML = '';
 document.getElementById('qr-container').appendChild(canvas);
 
