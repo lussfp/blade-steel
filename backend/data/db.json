@@ -73,6 +73,24 @@
       "pagamento_mp_id": null,
       "observacoes": null,
       "criado_em": "2026-03-12T16:48:23.671Z"
+    },
+    {
+      "id": 2,
+      "codigo": "BS-I60WWY",
+      "cliente_nome": "luis",
+      "cliente_email": "brmagosso@gmail.com",
+      "cliente_tel": "14998016347",
+      "servico_id": 1,
+      "data": "2026-03-18",
+      "hora": "16:00",
+      "duracao": 45,
+      "preco": 65,
+      "status": "aguardando_pagamento",
+      "pagamento_tipo": "checkout_pro",
+      "pagamento_status": "pendente",
+      "pagamento_mp_id": null,
+      "observacoes": null,
+      "criado_em": "2026-03-12T17:16:23.049Z"
     }
   ],
   "horarios_bloqueados": [],
@@ -84,7 +102,7 @@
     "dias_funcionamento": "1,2,3,4,5,6"
   },
   "_nextId": {
-    "agendamentos": 2,
+    "agendamentos": 3,
     "bloqueados": 1
   }
 }

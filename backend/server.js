@@ -233,6 +233,10 @@ app.put('/api/admin/configuracoes', (req, res) => {
 app.get('*', (req, res) =>
   res.sendFile(path.join(__dirname, '../frontend/index.html')));
 
+app.get('/', (req, res) => {
+  res.send('O backend da Blade & Steel está online! ⚔️');
+});
+
 app.listen(PORT, () => {
   console.log(`\n🪒  Blade & Steel → http://localhost:${PORT}`);
   console.log(`💳  Mercado Pago: ${process.env.MP_ACCESS_TOKEN ? '✅ Token configurado (Checkout Pro)' : '⚠️  Configure MP_ACCESS_TOKEN no .env'}`);
