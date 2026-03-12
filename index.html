@@ -606,7 +606,7 @@ async function iniciarPagamento() {
     state.codigoAgendamento = j1.data.codigo;
 
     // 2. Gera PIX
-    const r2 = await fetch(`${API}/agendamentos/${j.id}/pix`);
+    const r2 = await fetch(`${API}/agendamentos/${state.codigoAgendamento}/pix`);
 const j2 = await r2.json();
 
 document.getElementById('pix-code').value = j2.qr_payload;
