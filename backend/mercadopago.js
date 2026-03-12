@@ -1,9 +1,3 @@
-/**
- * mercadopago.js — Checkout Pro
- * Redireciona para página de pagamento do MP
- * Aceita: PIX + Cartão + Boleto automaticamente
- */
-
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 
 const client = new MercadoPagoConfig({

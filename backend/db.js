@@ -1,9 +1,3 @@
-/**
- * db.js — Banco de dados em JSON puro
- * Sem compilação C++, funciona em qualquer Node.js
- * Dados salvos em: backend/data/db.json
- */
-
 const fs   = require('fs');
 const path = require('path');
 
