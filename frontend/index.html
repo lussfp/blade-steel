@@ -398,6 +398,12 @@
 </footer>
 
 <script>
+  console.log("Tentando conectar em:", API);
+fetch(`${API}/api/servicos`)
+  .then(res => res.json())
+  .then(data => console.log("Dados recebidos com sucesso:", data))
+  .catch(err => console.error("Erro fatal na conexão:", err));
+  
 const API = 'https://blade-steel-production.up.railway.app/';;
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
