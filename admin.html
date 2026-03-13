@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLADE & STEEL — Painel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--black:#0a0804;--dark:#111008;--surface:#1a1510;--card:#211c14;--border:#2e2618;--gold:#c9a84c;--gold-light:#e8c97e;--gold-dim:#7a6230;--cream:#f0e6d0;--cream-dim:#a8956e;--green:#1e5c3a;--red:#8b2020;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--black);color:var(--cream);font-family:'Josefin Sans',sans-serif;font-weight:300;min-height:100vh;}
+  /* LOGIN */
+  .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
+  .login-box{background:var(--card);border:1px solid var(--border);padding:3rem;width:100%;max-width:400px;text-align:center;}
+  .login-box::before{content:'';display:block;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:-3rem -3rem 2rem;}
+  .login-title{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);margin-bottom:.3rem;}
+  .login-sub{font-size:.7rem;letter-spacing:.3em;color:var(--cream-dim);text-transform:uppercase;margin-bottom:2rem;}
+  .login-input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--cream);padding:.9rem 1rem;font-family:'Josefin Sans',sans-serif;font-size:.9rem;margin-bottom:1rem;outline:none;}
+  .login-input:focus{border-color:var(--gold-dim);}
+  .login-btn{width:100%;background:var(--gold);color:var(--black);border:none;padding:.9rem;font-family:'Josefin Sans',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:background .3s;}
+  .login-btn:hover{background:var(--gold-light);}
+  .login-err{color:#e05555;font-size:.75rem;margin-top:.5rem;display:none;}
+  /* PAINEL */
+  #painel{display:none;}
+  header{background:var(--dark);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+  .header-logo{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold);}
+  .header-logo span{color:var(--cream);font-style:italic;}
+  .header-badge{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-dim);border:1px solid var(--border);padding:.3rem .8rem;}
+  .btn-logout{background:none;border:1px solid var(--border);color:var(--cream-dim);padding:.4rem 1rem;font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+  .btn-logout:hover{border-color:var(--red);color:#e05555;}
+  main{padding:2rem;max-width:1200px;margin:0 auto;}
+  /* STATS */
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;}
+  .stat-card{background:var(--card);border:1px solid var(--border);padding:1.5rem;position:relative;overflow:hidden;}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .stat-label{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:.5rem;}
+  .stat-value{font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;}
+  .stat-sub{font-size:.7rem;color:var(--cream-dim);margin-top:.3rem;}
+  /* FILTROS */
+  .filters{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
+  .filter-select,.filter-input{background:var(--surface);border:1px solid var(--border);color:var(--cream);padding:.5rem .8rem;font-family:'Josefin Sans',sans-serif;font-size:.75rem;outline:none;cursor:pointer;}
+  .filter-select:focus,.filter-input:focus{border-color:var(--gold-dim);}
+  .btn-filter{background:var(--gold);color:var(--black);border:none;padding:.5rem 1.2rem;font-family:'Josefin Sans',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;}
+  .btn-filter:hover{background:var(--gold-light);}
+  /* TABELA */
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:.78rem;}
+  th{background:var(--surface);padding:.8rem 1rem;text-align:left;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:.8rem 1rem;border-bottom:1px solid var(--border);color:var(--cream-dim);vertical-align:middle;}
+  tr:hover td{background:rgba(201,168,76,.03);}
+  tr:last-child td{border-bottom:none;}
+  .badge{display:inline-block;padding:.2rem .6rem;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;border:1px solid;}
+  .badge-pago{color:#4ade80;border-color:rgba(30,92,58,.6);background:rgba(30,92,58,.15);}
+  .badge-pendente{color:#facc15;border-color:rgba(202,138,4,.6);background:rgba(202,138,4,.1);}
+  .badge-cancelado{color:#f87171;border-color:rgba(139,32,32,.6);background:rgba(139,32,32,.15);}
+  .badge-confirmado{color:#4ade80;border-color:rgba(30,92,58,.6);background:rgba(30,92,58,.15);}
+  .badge-aguardando{color:#94a3b8;border-color:rgba(100,116,139,.5);background:rgba(100,116,139,.1);}
+  .actions{display:flex;gap:.4rem;flex-wrap:wrap;}
+  .btn-sm{padding:.3rem .7rem;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-weight:600;transition:all .2s;white-space:nowrap;}
+  .btn-confirmar{color:#4ade80;border-color:rgba(30,92,58,.6);background:rgba(30,92,58,.1);}
+  .btn-confirmar:hover{background:rgba(30,92,58,.3);}
+  .btn-cancelar{color:#f87171;border-color:rgba(139,32,32,.5);background:rgba(139,32,32,.1);}
+  .btn-cancelar:hover{background:rgba(139,32,32,.3);}
+  .empty{text-align:center;padding:3rem;color:var(--cream-dim);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;}
+  .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  /* TOAST */
+  .toast{position:fixed;bottom:2rem;right:2rem;padding:.8rem 1.5rem;font-size:.75rem;letter-spacing:.1em;border:1px solid;z-index:999;animation:fadeIn .3s ease;display:none;}
+  .toast.ok{color:#4ade80;border-color:rgba(30,92,58,.6);background:rgba(10,8,4,.95);}
+  .toast.err{color:#f87171;border-color:rgba(139,32,32,.5);background:rgba(10,8,4,.95);}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:768px){main{padding:1rem;}.stats-grid{grid-template-columns:1fr 1fr;}.filters{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-title">Blade & Steel</div>
+    <div class="login-sub">Painel Administrativo</div>
+    <input class="login-input" type="password" id="login-key" placeholder="Chave de acesso" onkeydown="if(event.key==='Enter')entrar()">
+    <button class="login-btn" onclick="entrar()">Entrar</button>
+    <div class="login-err" id="login-err">Chave incorreta.</div>
+  </div>
+</div>
+
+<!-- PAINEL -->
+<div id="painel">
+  <header>
+    <div class="header-logo">Blade <span>&</span> Steel</div>
+    <div class="header-badge">Painel Admin</div>
+    <button class="btn-logout" onclick="sair()">Sair</button>
+  </header>
+
+  <main>
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="stat-label">Agendamentos Hoje</div><div class="stat-value" id="stat-hoje">—</div></div>
+      <div class="stat-card"><div class="stat-label">Receita Hoje</div><div class="stat-value" id="stat-receita-hoje">—</div></div>
+      <div class="stat-card"><div class="stat-label">Receita do Mês</div><div class="stat-value" id="stat-receita-mes">—</div></div>
+      <div class="stat-card"><div class="stat-label">Aguardando Pgto</div><div class="stat-value" id="stat-pendentes">—</div></div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <input type="date" class="filter-input" id="filtro-data">
+      <select class="filter-select" id="filtro-status">
+        <option value="">Todos os status</option>
+        <option value="aguardando_pagamento">Aguardando Pagamento</option>
+        <option value="confirmado">Confirmado</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+      <select class="filter-select" id="filtro-pgto">
+        <option value="">Todo pagamento</option>
+        <option value="pendente">Pendente</option>
+        <option value="pago">Pago</option>
+      </select>
+      <button class="btn-filter" onclick="carregarAgendamentos()">🔍 Filtrar</button>
+      <button class="btn-filter" style="background:var(--surface);color:var(--cream-dim);border:1px solid var(--border)" onclick="limparFiltros()">✕ Limpar</button>
+    </div>
+
+    <!-- Tabela -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cliente</th>
+            <th>Contato</th>
+            <th>Serviço</th>
+            <th>Data / Hora</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Pagamento</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-body">
+          <tr><td colspan="9" class="empty"><div class="spinner"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://blade-steel-production.up.railway.app';
+let ADMIN_KEY = '';
+
+// ─── AUTH ────────────────────────────────────────────────────────────────────
+async function entrar() {
+  const key = document.getElementById('login-key').value.trim();
+  if (!key) return;
+  // Testa a chave fazendo uma chamada real
+  try {
+    const r = await fetch(`${API}/api/admin/dashboard`, {
+      headers: { 'X-Admin-Key': key }
+    });
+    if (r.status === 401) {
+      document.getElementById('login-err').style.display = 'block';
+      return;
+    }
+    const j = await r.json();
+    ADMIN_KEY = key;
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('painel').style.display = 'block';
+    preencherStats(j.data);
+    carregarAgendamentos();
+  } catch {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+function sair() {
+  ADMIN_KEY = '';
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('painel').style.display = 'none';
+  document.getElementById('login-key').value = '';
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+function preencherStats(d) {
+  document.getElementById('stat-hoje').textContent         = d.agendamentos_hoje;
+  document.getElementById('stat-receita-hoje').textContent = `R$ ${parseFloat(d.receita_hoje||0).toFixed(2).replace('.',',')}`;
+  document.getElementById('stat-receita-mes').textContent  = `R$ ${parseFloat(d.receita_mes||0).toFixed(2).replace('.',',')}`;
+  document.getElementById('stat-pendentes').textContent    = d.aguardando_pag;
+}
+
+// ─── AGENDAMENTOS ────────────────────────────────────────────────────────────
+async function carregarAgendamentos() {
+  const data   = document.getElementById('filtro-data').value;
+  const status = document.getElementById('filtro-status').value;
+  const pgto   = document.getElementById('filtro-pgto').value;
+
+  let url = `${API}/api/admin/agendamentos?`;
+  if (data)   url += `data=${data}&`;
+  if (status) url += `status=${status}&`;
+  if (pgto)   url += `pagamento_status=${pgto}&`;
+
+  document.getElementById('tabela-body').innerHTML = '<tr><td colspan="9" class="empty"><div class="spinner"></div></td></tr>';
+
+  try {
+    const r = await fetch(url, { headers: { 'X-Admin-Key': ADMIN_KEY } });
+    const j = await r.json();
+    renderTabela(j.data);
+
+    // Atualiza stats também
+    const rd = await fetch(`${API}/api/admin/dashboard`, { headers: { 'X-Admin-Key': ADMIN_KEY } });
+    const jd = await rd.json();
+    preencherStats(jd.data);
+  } catch {
+    document.getElementById('tabela-body').innerHTML = '<tr><td colspan="9" class="empty">Erro ao carregar agendamentos.</td></tr>';
+  }
+}
+
+function limparFiltros() {
+  document.getElementById('filtro-data').value = '';
+  document.getElementById('filtro-status').value = '';
+  document.getElementById('filtro-pgto').value = '';
+  carregarAgendamentos();
+}
+
+function renderTabela(lista) {
+  if (!lista || lista.length === 0) {
+    document.getElementById('tabela-body').innerHTML = '<tr><td colspan="9" class="empty">Nenhum agendamento encontrado.</td></tr>';
+    return;
+  }
+
+  document.getElementById('tabela-body').innerHTML = lista.map(ag => {
+    const badgePgto   = ag.pagamento_status === 'pago'
+      ? '<span class="badge badge-pago">Pago</span>'
+      : ag.pagamento_status === 'recusado'
+        ? '<span class="badge badge-cancelado">Recusado</span>'
+        : '<span class="badge badge-pendente">Pendente</span>';
+
+    const badgeStatus = ag.status === 'confirmado'
+      ? '<span class="badge badge-confirmado">Confirmado</span>'
+      : ag.status === 'cancelado'
+        ? '<span class="badge badge-cancelado">Cancelado</span>'
+        : '<span class="badge badge-aguardando">Aguardando</span>';
+
+    const acoes = ag.status !== 'cancelado' ? `
+      <div class="actions">
+        ${ag.pagamento_status !== 'pago' ? `<button class="btn-sm btn-confirmar" onclick="confirmarPagamento('${ag.codigo}')">✓ Confirmar Pgto</button>` : ''}
+        <button class="btn-sm btn-cancelar" onclick="cancelarAgendamento('${ag.codigo}')">✕ Cancelar</button>
+      </div>` : '—';
+
+    const dataFormatada = new Date(ag.data + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'});
+
+    return `<tr>
+      <td style="font-family:monospace;color:var(--gold);font-weight:700">${ag.codigo}</td>
+      <td style="color:var(--cream)">${ag.cliente_nome}</td>
+      <td style="font-size:.7rem">${ag.cliente_tel||'—'}<br><span style="color:var(--cream-dim);font-size:.65rem">${ag.cliente_email||''}</span></td>
+      <td>${ag.servico_nome||'—'}</td>
+      <td style="white-space:nowrap">${dataFormatada}<br><strong style="color:var(--gold)">${ag.hora}</strong></td>
+      <td style="color:var(--gold);font-weight:700">R$ ${parseFloat(ag.preco).toFixed(2).replace('.',',')}</td>
+      <td>${badgeStatus}</td>
+      <td>${badgePgto}</td>
+      <td>${acoes}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── AÇÕES ───────────────────────────────────────────────────────────────────
+async function confirmarPagamento(codigo) {
+  if (!confirm(`Confirmar pagamento do agendamento ${codigo}?`)) return;
+  try {
+    const r = await fetch(`${API}/api/admin/agendamentos/${codigo}/confirmar`, {
+      method: 'POST', headers: { 'X-Admin-Key': ADMIN_KEY, 'Content-Type': 'application/json' }
+    });
+    const j = await r.json();
+    j.success ? toast('✅ Pagamento confirmado! E-mail enviado ao cliente.', 'ok') : toast('Erro: ' + j.erro, 'err');
+    carregarAgendamentos();
+  } catch { toast('Erro de conexão.', 'err'); }
+}
+
+async function cancelarAgendamento(codigo) {
+  if (!confirm(`Cancelar o agendamento ${codigo}? O horário será liberado.`)) return;
+  try {
+    const r = await fetch(`${API}/api/admin/agendamentos/${codigo}/cancelar`, {
+      method: 'PATCH', headers: { 'X-Admin-Key': ADMIN_KEY, 'Content-Type': 'application/json' }
+    });
+    const j = await r.json();
+    j.success ? toast('🚫 Agendamento cancelado. Horário liberado.', 'ok') : toast('Erro: ' + j.erro, 'err');
+    carregarAgendamentos();
+  } catch { toast('Erro de conexão.', 'err'); }
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function toast(msg, tipo) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${tipo}`;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3500);
+}
+
+// Auto-refresh a cada 60s
+setInterval(() => { if (ADMIN_KEY) carregarAgendamentos(); }, 60000);
+</script>
+</body>
+</html>

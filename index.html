@@ -160,7 +160,23 @@
   .pix-info-box{border:1px solid var(--border);background:var(--surface);padding:1.2rem;margin-top:1rem;font-size:.75rem;color:var(--cream-dim);line-height:1.8;text-align:left;}
   .pix-info-box strong{color:var(--gold);}
 
-  .step-nav{display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border);}
+  .slot.passado{background:rgba(42,34,20,.3);color:var(--border);border-color:var(--border);cursor:not-allowed;opacity:.5;}
+  /* Gerenciar agendamento */
+  .manage-box{border:1px solid var(--border);background:var(--surface);padding:1.5rem;margin-top:1.5rem;}
+  .manage-title{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
+  .manage-actions{display:flex;gap:.8rem;flex-wrap:wrap;}
+  .btn-manage{background:none;border:1px solid;padding:.6rem 1.2rem;font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+  .btn-manage-cancel{color:#f87171;border-color:rgba(139,32,32,.5);}
+  .btn-manage-cancel:hover{background:rgba(139,32,32,.15);}
+  .btn-manage-reagendar{color:var(--gold);border-color:var(--gold-dim);}
+  .btn-manage-reagendar:hover{background:rgba(201,168,76,.1);}
+  /* Reagendar modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:var(--card);border:1px solid var(--border);padding:2.5rem;width:100%;max-width:480px;position:relative;}
+  .modal-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--cream);margin-bottom:.5rem;}
+  .modal-sub{font-size:.75rem;color:var(--cream-dim);margin-bottom:1.5rem;}
+  .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--cream-dim);font-size:1.2rem;cursor:pointer;}
   .btn-back{background:none;border:1px solid var(--border);color:var(--cream-dim);padding:.8rem 2rem;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
   .btn-back:hover{border-color:var(--gold-dim);color:var(--cream);}
   .btn-next{background:var(--gold);color:var(--black);border:none;padding:.8rem 2.5rem;font-family:'Josefin Sans',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:.5rem;}
@@ -367,11 +383,43 @@
         <div class="success-title">Agendamento Realizado!</div>
         <div class="booking-code" id="booking-code">BS-000000</div>
         <p class="success-sub" id="success-details"></p>
-        <button class="btn-primary" style="margin-top:2rem" onclick="resetBooking()">Novo Agendamento</button>
+
+        <!-- Gerenciar agendamento -->
+        <div class="manage-box" id="manage-box" style="text-align:left;margin-top:2rem;">
+          <div class="manage-title">✦ Gerenciar Agendamento</div>
+          <div class="manage-actions">
+            <button class="btn-manage btn-manage-reagendar" onclick="abrirModalReagendar()">🔄 Reagendar</button>
+            <button class="btn-manage btn-manage-cancel" onclick="cancelarAgendamentoCliente()">✕ Cancelar Agendamento</button>
+          </div>
+          <p style="font-size:.65rem;color:var(--cream-dim);margin-top:.8rem;line-height:1.8;">Para cancelar ou reagendar, você precisa do código acima. O horário será liberado automaticamente.</p>
+        </div>
+
+        <button class="btn-primary" style="margin-top:1.5rem" onclick="resetBooking()">Novo Agendamento</button>
       </div>
     </div>
   </div>
 </section>
+
+<!-- MODAL REAGENDAR -->
+<div class="modal-overlay" id="modal-reagendar">
+  <div class="modal-box">
+    <button class="modal-close" onclick="fecharModal()">✕</button>
+    <div class="modal-title">Reagendar</div>
+    <div class="modal-sub">Escolha uma nova data e horário. O horário atual será liberado.</div>
+    <div class="field-row" style="margin-bottom:1rem">
+      <div class="field"><label>Nova Data *</label><input type="date" id="reagendar-data" min=""></div>
+      <div class="field"><label>Novo Horário *</label>
+        <select id="reagendar-hora" class="filter-select" style="width:100%;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--border);color:var(--cream);font-size:.85rem;">
+          <option value="">Selecione a data primeiro</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:.8rem;margin-top:1rem;">
+      <button class="btn-back" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-next" id="btn-confirmar-reagendar" onclick="confirmarReagendar()" disabled>Confirmar Reagendamento</button>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div class="footer-grid">
@@ -501,9 +549,16 @@ async function selectDate(ds) {
     const r=await fetch(`${API}/api/disponibilidade/${ds}`);
     const j=await r.json();
     state.slotsData=j.data;
-    g.innerHTML=j.data.aberto
-      ? j.data.slots.map(s=>`<div class="slot${!s.disponivel?' unavailable':''}${state.time===s.hora?' selected':''}" ${s.disponivel?`onclick="selectSlot('${s.hora}',this)"`:''} >${s.hora}</div>`).join('')
-      : '<p style="grid-column:1/-1;font-size:.75rem;color:var(--cream-dim);padding:.5rem">Fechado neste dia.</p>';
+    if(!j.data.aberto) {
+      g.innerHTML='<p style="grid-column:1/-1;font-size:.75rem;color:var(--cream-dim);padding:.5rem">Fechado neste dia.</p>';
+      return;
+    }
+    // FIX 1: slots passados ficam cinza com tooltip, indisponíveis ficam vermelho
+    g.innerHTML = j.data.slots.map(s => {
+      if(s.passado)      return `<div class="slot passado" title="Horário já passou">${s.hora}</div>`;
+      if(!s.disponivel)  return `<div class="slot unavailable">${s.hora}</div>`;
+      return `<div class="slot${state.time===s.hora?' selected':''}" onclick="selectSlot('${s.hora}',this)">${s.hora}</div>`;
+    }).join('');
   } catch {
     g.innerHTML='<p style="grid-column:1/-1;font-size:.75rem;color:#e05555;padding:.5rem">Erro ao carregar horários.</p>';
   }
@@ -696,6 +751,119 @@ function resetBooking() {
 }
 
 function scrollToBook(){document.getElementById('agendamento').scrollIntoView({behavior:'smooth'});}
+
+// ─── FIX 3: CANCELAR PELO CLIENTE ────────────────────────────────────────────
+async function cancelarAgendamentoCliente() {
+  const codigo = state.codigoAgendamento;
+  if (!codigo) return;
+  if (!confirm(`Tem certeza que deseja cancelar o agendamento ${codigo}?\nO horário será liberado automaticamente.`)) return;
+
+  try {
+    const r = await fetch(`${API}/api/agendamentos/${codigo}/cancelar`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }
+    });
+    const j = await r.json();
+    if (j.success) {
+      document.getElementById('manage-box').innerHTML =
+        '<div style="color:#4ade80;font-size:.8rem;padding:.5rem 0">✓ Agendamento cancelado. O horário foi liberado.</div>';
+      document.getElementById('success-title').textContent = 'Agendamento Cancelado';
+      document.getElementById('success-icon').textContent = '✕';
+      document.getElementById('success-icon').style.borderColor = 'var(--red)';
+      document.getElementById('success-icon').style.background = 'rgba(139,32,32,.2)';
+    } else {
+      alert('Erro: ' + (j.erro || 'Não foi possível cancelar.'));
+    }
+  } catch {
+    alert('Erro de conexão. Tente novamente.');
+  }
+}
+
+// ─── FIX 3: REAGENDAR PELO CLIENTE ───────────────────────────────────────────
+function abrirModalReagendar() {
+  // Define data mínima como hoje
+  const hoje = new Date().toISOString().split('T')[0];
+  document.getElementById('reagendar-data').min = hoje;
+  document.getElementById('reagendar-data').value = '';
+  document.getElementById('reagendar-hora').innerHTML = '<option value="">Selecione a data primeiro</option>';
+  document.getElementById('btn-confirmar-reagendar').disabled = true;
+  document.getElementById('modal-reagendar').classList.add('show');
+}
+
+function fecharModal() {
+  document.getElementById('modal-reagendar').classList.remove('show');
+}
+
+// Carrega slots disponíveis para a nova data
+document.addEventListener('DOMContentLoaded', () => {
+  const rdInput = document.getElementById('reagendar-data');
+  if (rdInput) {
+    rdInput.addEventListener('change', async function() {
+      const ds = this.value;
+      if (!ds) return;
+      const sel = document.getElementById('reagendar-hora');
+      sel.innerHTML = '<option value="">Carregando...</option>';
+      document.getElementById('btn-confirmar-reagendar').disabled = true;
+      try {
+        const r = await fetch(`${API}/api/disponibilidade/${ds}`);
+        const j = await r.json();
+        if (!j.data.aberto) {
+          sel.innerHTML = '<option value="">Fechado neste dia</option>';
+          return;
+        }
+        const disponiveis = j.data.slots.filter(s => s.disponivel && !s.passado);
+        if (!disponiveis.length) {
+          sel.innerHTML = '<option value="">Sem horários disponíveis</option>';
+          return;
+        }
+        sel.innerHTML = '<option value="">Selecione o horário</option>' +
+          disponiveis.map(s => `<option value="${s.hora}">${s.hora}</option>`).join('');
+        sel.onchange = () => {
+          document.getElementById('btn-confirmar-reagendar').disabled = !sel.value;
+        };
+      } catch {
+        sel.innerHTML = '<option value="">Erro ao carregar</option>';
+      }
+    });
+  }
+});
+
+async function confirmarReagendar() {
+  const nova_data = document.getElementById('reagendar-data').value;
+  const nova_hora = document.getElementById('reagendar-hora').value;
+  const codigo    = state.codigoAgendamento;
+  if (!nova_data || !nova_hora || !codigo) return;
+
+  const btn = document.getElementById('btn-confirmar-reagendar');
+  btn.disabled = true;
+  btn.textContent = 'Reagendando...';
+
+  try {
+    const r = await fetch(`${API}/api/agendamentos/${codigo}/reagendar`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nova_data, nova_hora })
+    });
+    const j = await r.json();
+    if (j.success) {
+      fecharModal();
+      // Atualiza a tela de sucesso com o novo horário
+      state.date = nova_data;
+      state.time = nova_hora;
+      const d  = new Date(nova_data + 'T12:00:00');
+      const ds = d.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' });
+      document.getElementById('success-details').innerHTML =
+        `${state.servico.icone} ${state.servico.nome}<br>${ds} às ${nova_hora} — R$ ${state.servico.preco},00<br><br>
+        <span style="color:#4ade80">✓ Reagendado com sucesso!<br>O barbeiro foi notificado. ✦</span>`;
+    } else {
+      alert('Erro: ' + (j.erro || 'Não foi possível reagendar.'));
+      btn.disabled = false;
+      btn.textContent = 'Confirmar Reagendamento';
+    }
+  } catch {
+    alert('Erro de conexão. Tente novamente.');
+    btn.disabled = false;
+    btn.textContent = 'Confirmar Reagendamento';
+  }
+}
 
 async function init() {
   window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>60));
