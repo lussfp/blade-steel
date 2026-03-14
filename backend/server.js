@@ -11,9 +11,10 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors({
   origin: ['https://lussfp.github.io', 'http://localhost:3001'],
-  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'X-Admin-Key']
+  methods: ['GET','POST','PATCH','PUT','DELETE'],
+  allowedHeaders: ['Content-Type','X-Admin-Key']
 }));
+app.options('*', cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
