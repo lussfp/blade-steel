@@ -11,10 +11,9 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors({
   origin: ['https://lussfp.github.io', 'http://localhost:3001'],
-  methods: ['GET','POST','PATCH','PUT','DELETE'],
-  allowedHeaders: ['Content-Type','X-Admin-Key']
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'X-Admin-Key']
 }));
-app.options('*', cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
@@ -295,4 +294,4 @@ app.listen(PORT, () => {
   console.log(`💳  PIX Próprio: ✅ Chave configurada`);
   console.log(`📧  E-mail: ${process.env.EMAIL_USER ? '✅ ' + process.env.EMAIL_USER : '⚠️  Configure EMAIL_USER no .env'}`);
   console.log(`📁  Dados: backend/data/db.json\n`);
-}); 
+});
