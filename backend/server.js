@@ -295,4 +295,4 @@ app.listen(PORT, () => {
   console.log(`💳  PIX Próprio: ✅ Chave configurada`);
   console.log(`📧  E-mail: ${process.env.EMAIL_USER ? '✅ ' + process.env.EMAIL_USER : '⚠️  Configure EMAIL_USER no .env'}`);
   console.log(`📁  Dados: backend/data/db.json\n`);
-});
+}); 
